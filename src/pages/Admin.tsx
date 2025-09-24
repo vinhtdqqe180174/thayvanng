@@ -38,14 +38,14 @@ const Admin = () => {
   const fetchProducts = async () => {
     try {
       setLoading(true);
-      const response = await fetch('http://localhost:5000/api/products');
-      
+      const response = await fetch(import.meta.env.VITE_API_URL);
+
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-      
+
       const result = await response.json();
-      
+
       if (result.success) {
         setProducts(result.data);
       } else {
@@ -90,9 +90,10 @@ const Admin = () => {
 
   const handleDelete = async (productId: string) => {
     try {
-      const response = await fetch(`http://localhost:5000/api/products/${productId}`, {
-        method: 'DELETE',
-      });
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/product/${productId}`,
+        {
+          method: 'DELETE',
+        });
 
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
@@ -121,7 +122,7 @@ const Admin = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!formData.name || !formData.description || !formData.price) {
       toast({
         title: "Error",
@@ -143,7 +144,8 @@ const Admin = () => {
 
       if (editingProduct) {
         // Update existing product
-        const response = await fetch(`http://localhost:5000/api/products/${editingProduct._id || editingProduct.id}`, {
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/${editingProduct._id || editingProduct.id}`
+, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
@@ -158,7 +160,7 @@ const Admin = () => {
         const result = await response.json();
 
         if (result.success) {
-          setProducts(products.map(p => 
+          setProducts(products.map(p =>
             (p._id || p.id) === (editingProduct._id || editingProduct.id) ? result.data : p
           ));
           toast({
@@ -170,7 +172,7 @@ const Admin = () => {
         }
       } else {
         // Create new product
-        const response = await fetch('http://localhost:5000/api/products', {
+        const response = await fetch(import.meta.env.VITE_API_URL, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -212,7 +214,7 @@ const Admin = () => {
   return (
     <div className="min-h-screen bg-background">
       <Header />
-      
+
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
         <div className="flex justify-between items-center mb-8">
@@ -220,7 +222,7 @@ const Admin = () => {
             <h1 className="text-3xl font-bold mb-2">Product Management</h1>
             <p className="text-muted-foreground">Manage your product catalog</p>
           </div>
-          
+
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogTrigger asChild>
               <Button onClick={resetForm} className="gap-2">
@@ -234,30 +236,30 @@ const Admin = () => {
                   {editingProduct ? 'Edit Product' : 'Add New Product'}
                 </DialogTitle>
               </DialogHeader>
-              
+
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
                   <Label htmlFor="name">Product Name *</Label>
                   <Input
                     id="name"
                     value={formData.name}
-                    onChange={(e) => setFormData({...formData, name: e.target.value})}
+                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                     placeholder="Enter product name"
                     required
                   />
                 </div>
-                
+
                 <div>
                   <Label htmlFor="description">Description *</Label>
                   <Textarea
                     id="description"
                     value={formData.description}
-                    onChange={(e) => setFormData({...formData, description: e.target.value})}
+                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                     placeholder="Enter product description"
                     required
                   />
                 </div>
-                
+
                 <div>
                   <Label htmlFor="price">Price *</Label>
                   <Input
@@ -265,15 +267,15 @@ const Admin = () => {
                     type="number"
                     step="0.01"
                     value={formData.price}
-                    onChange={(e) => setFormData({...formData, price: e.target.value})}
+                    onChange={(e) => setFormData({ ...formData, price: e.target.value })}
                     placeholder="0.00"
                     required
                   />
                 </div>
-                
+
                 <div>
                   <Label htmlFor="category">Category</Label>
-                  <Select value={formData.category} onValueChange={(value) => setFormData({...formData, category: value})}>
+                  <Select value={formData.category} onValueChange={(value) => setFormData({ ...formData, category: value })}>
                     <SelectTrigger>
                       <SelectValue placeholder="Select category" />
                     </SelectTrigger>
@@ -287,20 +289,20 @@ const Admin = () => {
                     </SelectContent>
                   </Select>
                 </div>
-                
+
                 <div>
                   <Label htmlFor="image">Image URL</Label>
                   <Input
                     id="image"
                     value={formData.image}
-                    onChange={(e) => setFormData({...formData, image: e.target.value})}
+                    onChange={(e) => setFormData({ ...formData, image: e.target.value })}
                     placeholder="https://example.com/image.jpg"
                   />
                 </div>
-                
+
                 <div>
                   <Label htmlFor="inStock">Stock Status</Label>
-                  <Select value={formData.inStock.toString()} onValueChange={(value) => setFormData({...formData, inStock: value === 'true'})}>
+                  <Select value={formData.inStock.toString()} onValueChange={(value) => setFormData({ ...formData, inStock: value === 'true' })}>
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
@@ -310,14 +312,14 @@ const Admin = () => {
                     </SelectContent>
                   </Select>
                 </div>
-                
+
                 <div className="flex gap-2 pt-4">
                   <Button type="submit" className="flex-1" disabled={isSubmitting}>
                     {isSubmitting ? 'Processing...' : (editingProduct ? 'Update' : 'Create')} Product
                   </Button>
-                  <Button 
-                    type="button" 
-                    variant="outline" 
+                  <Button
+                    type="button"
+                    variant="outline"
                     onClick={() => setIsDialogOpen(false)}
                     disabled={isSubmitting}
                   >
@@ -340,7 +342,7 @@ const Admin = () => {
               <div className="text-2xl font-bold">{products.length}</div>
             </CardContent>
           </Card>
-          
+
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">In Stock</CardTitle>
@@ -350,7 +352,7 @@ const Admin = () => {
               <div className="text-2xl font-bold">{products.filter(p => p.inStock !== false).length}</div>
             </CardContent>
           </Card>
-          
+
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Out of Stock</CardTitle>
@@ -378,8 +380,8 @@ const Admin = () => {
                   <div key={product._id || product.id} className="flex items-center justify-between p-4 border rounded-lg">
                     <div className="flex items-center gap-4">
                       {product.image ? (
-                        <img 
-                          src={product.image} 
+                        <img
+                          src={product.image}
                           alt={product.name}
                           className="w-16 h-16 object-cover rounded"
                         />
@@ -388,7 +390,7 @@ const Admin = () => {
                           <Package className="w-6 h-6 text-muted-foreground" />
                         </div>
                       )}
-                      
+
                       <div>
                         <h3 className="font-semibold">{product.name}</h3>
                         <p className="text-sm text-muted-foreground line-clamp-1">
@@ -407,17 +409,17 @@ const Admin = () => {
                         </div>
                       </div>
                     </div>
-                    
+
                     <div className="flex gap-2">
-                      <Button 
-                        variant="outline" 
+                      <Button
+                        variant="outline"
                         size="sm"
                         onClick={() => handleEdit(product)}
                       >
                         <Edit className="w-4 h-4" />
                       </Button>
-                      <Button 
-                        variant="outline" 
+                      <Button
+                        variant="outline"
                         size="sm"
                         onClick={() => handleDelete(product._id || product.id || '')}
                       >
@@ -431,7 +433,7 @@ const Admin = () => {
           </CardContent>
         </Card>
       </div>
-      
+
       <Footer />
     </div>
   );
